@@ -1,0 +1,13 @@
+{
+  "name": "next-step-job-tracker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Личный трекер поиска работы — Следующий шаг",
+  "engines": { "node": ">=22.13.0" },
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "check": "node --check server.mjs && node --check public/app.js"
+  }
+}
