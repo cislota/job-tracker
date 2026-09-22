@@ -143,6 +143,18 @@ function deleteDialog(type,id){const job=state.jobs.find(j=>j.id===id),task=stat
 async function mutation(path,options,message){await api(path,options);await refresh();render();if(message)toast(message);}
 
 document.addEventListener('click',async event=>{
+  // Clicking an already-selected note does not fire hashchange. Return to
+  // its editor explicitly, without re-rendering and losing unsaved text.
+  const noteLink=event.target.closest('a[href^="#job/"]');
+  if(noteLink && !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey && event.button===0) {
+    const target=noteLink.getAttribute('href');
+    if(target===location.hash && new URLSearchParams(target.split('?')[1]||'').has('note')) {
+      event.preventDefault();
+      document.querySelector('#note-body')?.focus({preventScroll:true});
+      document.querySelector('#notes-section')?.scrollIntoView({block:'start'});
+      return;
+    }
+  }
   const el=event.target.closest('[data-action]');if(!el)return;const action=el.dataset.action;
   if(el.disabled)return;
   try{
