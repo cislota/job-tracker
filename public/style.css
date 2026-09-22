@@ -100,3 +100,35 @@ label{display:flex;flex-direction:column;gap:8px;font-size:12px;font-weight:500;
   .theme-toggle { right: max(16px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom)); }
   .auth-side { padding-bottom: 100px; }
 }
+
+/* Inline note previews stay on the vacancy list; editing opens the detail page. */
+.job-notes { position: relative; flex: 0 0 164px; min-width: 0; }
+.job-notes summary { display: flex; align-items: center; gap: 8px; padding: 11px 10px; border: 1px solid var(--line); border-radius: 8px; cursor: pointer; list-style: none; font-size: 12px; background: #f7f9f3; }
+.job-notes summary::-webkit-details-marker { display: none; }
+.job-notes summary>.icon { width: 16px; height: 16px; }
+.job-notes summary>.icon:last-child { margin-left: auto; transition: transform .15s; }
+.job-notes[open] summary>.icon:last-child { transform: rotate(180deg); }
+.job-notes summary:focus-visible { outline: 3px solid #8ab89b; outline-offset: 3px; }
+.notes-popover { position: absolute; top: calc(100% + 8px); right: 0; width: 340px; max-height: 350px; overflow-y: auto; padding: 18px; border: 1px solid var(--line); border-radius: 10px; background: white; box-shadow: 0 10px 35px #142b2520; z-index: 30; }
+.notes-popover h3 { font-size: 14px; margin: 0 0 12px; overflow-wrap: anywhere; }
+.note-preview+.note-preview { border-top: 1px solid var(--line); padding-top: 15px; margin-top: 15px; }
+.note-preview time { font-size: 10px; color: var(--muted); }
+.note-preview p { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 13px; line-height: 1.7; margin: 8px 0; }
+.note-heading,.note-form-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.note-heading .text-button { font-size: 11px; }
+#notes-section { scroll-margin-top: 115px; }
+.board-card .job-notes { margin-top: 12px; }
+.board-card .notes-popover { position: static; width: 100%; margin-top: 8px; padding: 12px; box-shadow: none; }
+[data-theme="dark"] .job-notes summary { background: #25372b; border-color: #43573b; color: #d3e1c9; }
+[data-theme="dark"] .notes-popover { background: var(--surface); color: #e0e9e3; }
+@media(max-width:1150px) {
+  .job-card>.job-notes { margin-left: auto; }
+}
+@media(max-width:680px) {
+  .job-card>.job-notes { flex-basis: 100%; margin-left: 45px; }
+  .job-card .notes-popover { position: static; width: 100%; margin-top: 8px; box-shadow: none; }
+  .note-heading { flex-wrap: wrap; }
+}
+.job-card .job-stage { min-width: 0; }
+.job-card .next-action { max-width: 100%; }
+@media(max-width:680px) { .job-card>.job-notes { flex-basis: calc(100% - 45px); } }

@@ -214,6 +214,15 @@ export function createApp({dbPath = process.env.DB_PATH || join(ROOT,'data','tra
           }
           if(method==='DELETE') { stmt('DELETE FROM jobs WHERE id=? AND user_id=?').run(old.id,userId); return send(res,{ok:true}); }
         }
+        const editNoteMatch=/^\/api\/jobs\/([^/]+)\/notes\/([^/]+)$/.exec(path);
+        if(editNoteMatch && method==='PATCH') {
+          ownJob(editNoteMatch[1],userId);
+          const note=stmt("SELECT id FROM events WHERE id=? AND job_id=? AND user_id=? AND kind='note'").get(editNoteMatch[2],editNoteMatch[1],userId);
+          if(!note) fail(404,'Заметка не найдена.');
+          const body=await bodyOf(req), content=text(body.body,10000,true);
+          stmt("UPDATE events SET body=? WHERE id=? AND job_id=? AND user_id=? AND kind='note'").run(content,note.id,editNoteMatch[1],userId);
+          return send(res,{ok:true});
+        }
         const noteMatch=/^\/api\/jobs\/([^/]+)\/notes$/.exec(path);
         if(noteMatch && method==='POST') {
           ownJob(noteMatch[1],userId); const body=await bodyOf(req);

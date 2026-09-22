@@ -106,6 +106,24 @@ test('проверка Origin и базовые защитные заголов�
   assert.equal((await a('/server.mjs')).status,404);
 });
 
+test('редактирование заметки сохраняет её id и не допускает доступ к чужим заметкам и истории',async t=>{
+  const {client}=await fixture(t),a=client(),b=client();
+  await register(a);await b('/api/auth/register',{method:'POST',body:{...credentials,email:'notes-b@example.com'}});
+  const {data:{id}}=await addJob(a);
+  await a(`/api/jobs/${id}/notes`,{method:'POST',body:{body:'До редактирования'}});
+  const events=(await a('/api/state')).data.events;
+  const note=events.find(e=>e.kind==='note'),history=events.find(e=>e.kind==='created');
+  const path=`/api/jobs/${id}/notes/${note.id}`;
+  assert.equal((await b(path,{method:'PATCH',body:{body:'Чужая правка'}})).status,404);
+  assert.equal((await a(path,{method:'PATCH',body:{body:'   '}})).status,400);
+  assert.equal((await a(`/api/jobs/${id}/notes/${history.id}`,{method:'PATCH',body:{body:'Подмена истории'}})).status,404);
+  const other=(await addJob(a)).data.id;
+  assert.equal((await a(`/api/jobs/${other}/notes/${note.id}`,{method:'PATCH',body:{body:'Неверная вакансия'}})).status,404);
+  assert.equal((await a(path,{method:'PATCH',body:{body:'После редактирования\nВторая строка'}})).status,200);
+  const notes=(await a('/api/state')).data.events.filter(e=>e.kind==='note');
+  assert.equal(notes.length,1);assert.equal(notes[0].id,note.id);assert.equal(notes[0].body,'После редактирования\nВторая строка');
+});
+
 test('данные переживают перезапуск сервера',async t=>{
   const dir=mkdtempSync(join(tmpdir(),'next-step-test-')),dbPath=join(dir,'test.sqlite');
   let server;
