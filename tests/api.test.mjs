@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { get } from 'node:http';
 import { createApp } from '../server.mjs';
 
 async function fixture(t, options={}) {
@@ -96,10 +97,11 @@ test('демо изолировано и не заменяет личный ак
 });
 
 test('проверка Origin и базовые защитные заголовки',async t=>{
-  const {client}=await fixture(t),a=client();await register(a);
+  const {client,origin}=await fixture(t),a=client();await register(a);
   assert.equal((await a('/api/jobs',{method:'POST',body:job,headers:{Origin:'https://attacker.example'}})).status,403);
   assert.equal((await a('/api/jobs',{method:'POST',body:job,headers:{Origin:''}})).status,403);
-  assert.equal((await a('/api/health',{headers:{Host:'attacker.example'}})).status,403);
+  const foreignHost=await new Promise((resolve,reject)=>get(origin+'/api/health',{headers:{Host:'attacker.example'}},res=>{res.resume();resolve(res.statusCode);}).on('error',reject));
+  assert.equal(foreignHost,403);
   const page=await a('/');assert.equal(page.status,200);assert.match(page.headers.get('content-security-policy'),/script-src 'self'/);assert.equal(page.headers.get('x-frame-options'),'DENY');
   assert.equal((await a('/server.mjs')).status,404);
 });
