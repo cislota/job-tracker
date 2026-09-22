@@ -1,3 +1,24 @@
+const themeToggle = document.querySelector('#theme-toggle');
+const themeStorageKey = 'next-step-theme';
+function applyTheme(theme) {
+  const dark = theme === 'dark';
+  document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+  themeToggle.setAttribute('aria-pressed', String(dark));
+  themeToggle.title = dark ? 'Включить светлую тему' : 'Включить тёмную тему';
+  document.querySelector('meta[name="theme-color"]').content = dark ? '#121b19' : '#183b36';
+}
+let savedTheme = 'light';
+try { savedTheme = localStorage.getItem(themeStorageKey) || 'light'; } catch { /* Storage may be unavailable in private browsing. */ }
+applyTheme(savedTheme);
+themeToggle.addEventListener('click', () => {
+  const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+  try { localStorage.setItem(themeStorageKey, next); } catch { /* The switch still works without persistence. */ }
+});
+window.addEventListener('storage', event => {
+  if (event.key === themeStorageKey) applyTheme(event.newValue || 'light');
+});
+
 const app=document.querySelector('#app');
 const dialog=document.querySelector('#dialog');
 const toastEl=document.querySelector('#toast');

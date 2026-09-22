@@ -10,3 +10,93 @@ label{display:flex;flex-direction:column;gap:8px;font-size:12px;font-weight:500;
 .board,.board-card{position:relative}
 @media(max-width:680px){.sidebar{display:grid;grid-template-columns:1fr auto;gap:9px}.sidebar nav{grid-column:1/-1;grid-row:2;width:100%;margin:0;justify-content:space-between}.nav-link{flex:1;justify-content:center;font-size:12px;padding:10px 12px}.account{display:flex;grid-column:2;grid-row:1;border:0;padding:0}.account>.avatar,.account>div{display:none}.account>.icon-button{min-width:36px;min-height:32px}.sidebar .brand{font-size:13px}.metric-top{font-size:11px}.metric-sub{font-size:10px}.task-copy strong{font-size:12px}.task-copy a{font-size:10px}.task-date{font-size:10px}.section-heading p{font-size:10px}.compact-job strong{font-size:12px}.compact-job div>span{font-size:10px}.badge{font-size:10px}.demo-banner{font-size:9px}.demo-banner button{font-size:9px}.task-check{width:26px;height:26px}.story-body h1 br{display:initial}.story-body h1{font-size:29px}.auth-note{font-size:10px}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+/* Theme switch stays outside the rendered app, including on the sign-in screen. */
+.theme-toggle {
+  position: fixed;
+  right: max(22px, env(safe-area-inset-right));
+  bottom: max(22px, env(safe-area-inset-bottom));
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 1px solid #d8e2d2;
+  border-radius: 50%;
+  color: #183b36;
+  background: #fff;
+  box-shadow: 0 4px 20px #183b3620;
+  transition: background .15s, transform .15s;
+}
+.theme-toggle:hover { transform: translateY(-2px); background: #edf3e5; }
+.theme-toggle svg { width: 22px; height: 22px; }
+.theme-sun { display: none; }
+.main { padding-bottom: 88px; }
+#toast { bottom: 85px; }
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  color: #e0e9e3;
+  background: #121b19;
+  --muted: #a4b4a8;
+  --line: #314139;
+  --surface: #1b2823;
+  --danger: #eea39a;
+}
+[data-theme="dark"] .theme-toggle { background: #293d31; color: #d7e9b5; border-color: #52684c; box-shadow: 0 4px 20px #0005; }
+[data-theme="dark"] .theme-toggle:hover { background: #364e3e; }
+[data-theme="dark"] .theme-moon { display: none; }
+[data-theme="dark"] .theme-sun { display: block; }
+[data-theme="dark"] :is(.sidebar,.panel,.metric,.job-card,.board-card,.view-switch,dialog) { background: var(--surface); color: #e0e9e3; border-color: var(--line); }
+[data-theme="dark"] :is(input,textarea,select,.auth-box input) { background: #14201b; color: #e0e9e3; border-color: #405146; }
+[data-theme="dark"] :is(input,textarea)::placeholder { color: #8e9f91; }
+[data-theme="dark"] :is(input,textarea,select):hover { border-color: #77916b; }
+[data-theme="dark"] label { color: #c2d0be; }
+[data-theme="dark"] .primary { background: #bdd5a6; color: #17291e; }
+[data-theme="dark"] .primary:hover { background: #d0e4bb; }
+[data-theme="dark"] :is(.secondary,.demo-button) { background: #25372b; color: #d3e1c9; border-color: #43573b; }
+[data-theme="dark"] :is(.secondary,.demo-button):hover { background: #334a39; }
+[data-theme="dark"] :is(.icon-button:hover,.nav-link:hover) { background: #2a3b30; }
+[data-theme="dark"] :is(.nav-link.active,.view-switch button[aria-pressed=true]) { background: #30442d; color: #dfedcb; }
+[data-theme="dark"] :is(.nav-link small,.count,.avatar,.empty-icon,.date-tile,.note,.funnel-step,.export-icon) { background: #2b3c2d; color: #c5d8b4; border-color: #42503a; }
+[data-theme="dark"] :is(.hero-strip,.export-panel,.demo-banner) { background: #273827; border-color: #3a4c31; color: #c1d0af; }
+[data-theme="dark"] :is(.hero-strip h2,.export-panel h2) { color: #e0ebcc; }
+[data-theme="dark"] :is(.hero-strip p,.hero-strip .eyebrow,.export-panel p,.demo-banner button) { color: #b6c6a2; }
+[data-theme="dark"] .hero-art span { background: #35472e; border-color: #52633d; }
+[data-theme="dark"] .hero-art span:nth-child(3) { background: #bbd39b; color: #213a28; }
+[data-theme="dark"] .metric.accent { background: #30482f; border-color: #4a6241; color: #e4f1d3; }
+[data-theme="dark"] .metric.accent :is(.metric-top,.metric-top .icon,.metric-sub) { color: #bed0ac; }
+[data-theme="dark"] :is(.task-row,.panel-foot,.upcoming-item,.compact-job,.funnel-row,.auth-tabs,.divider) { border-color: var(--line); }
+[data-theme="dark"] .task-check { background: #18241e; border-color: #718565; }
+[data-theme="dark"] .task-check:hover { background: #30452d; }
+[data-theme="dark"] .task-check.checked { background: #bad29e; color: #1c3224; border-color: #bad29e; }
+[data-theme="dark"] .board-column { background: #18241f; }
+[data-theme="dark"] .board-card select { background: #14201b; }
+[data-theme="dark"] .mint { background: #2b4435; color: #bddabd; }
+[data-theme="dark"] .lavender { background: #3b3247; color: #d2c0e5; }
+[data-theme="dark"] .peach { background: #483c29; color: #e2c995; }
+[data-theme="dark"] .blue { background: #293e4b; color: #b6d1e4; }
+[data-theme="dark"] .status-saved { background-color: #303d2d; color: #c1d0b3; }
+[data-theme="dark"] .status-applied { background-color: #273e49; color: #b0d1e3; }
+[data-theme="dark"] .status-interview { background-color: #453e29; color: #e4d18e; }
+[data-theme="dark"] .status-offer { background-color: #294332; color: #afd9b6; }
+[data-theme="dark"] .status-rejected { background-color: #483330; color: #e7b4a9; }
+[data-theme="dark"] .status-closed { background-color: #333d40; color: #c1ced2; }
+[data-theme="dark"] .status-dot { background: currentColor; }
+[data-theme="dark"] :is(.overdue,.form-error) { color: #f0b193 !important; }
+[data-theme="dark"] :is(.eyebrow,.nav-caption,.nav-link,.sidebar-note>span:last-child,.account div span,.page-header p,.metric-top,.metric-top .icon,.metric-sub,.section-heading p,.section-heading>.icon,.task-copy a,.task-copy>span,.task-date,.panel-foot,.upcoming-item>div span,.small-empty,.compact-job div>span,.compact-job>.icon,.page-footer,.view-switch button,.results-info,.company-name,.job-meta,.job-pay>span,.next-action,.board-column>h3 small,.board-card p,.board-empty,.back-link,.detail-title>span,.detail-title p,.prose,.detail-fact>span,.detail-fact small,.timeline time,.note time,.method-note,.empty p,.form-hint,.auth-note,.auth-bottom,.auth-tabs button) { color: #a9b8a5; }
+[data-theme="dark"] :is(.text-button,.task-copy a:hover,.compact-job:hover strong,.upcoming-item:hover strong) { color: #c5dda9; }
+[data-theme="dark"] .auth { background: #121b19; }
+[data-theme="dark"] .auth-tabs button.selected { color: #d5e9bd; }
+[data-theme="dark"] .auth-tabs button.selected:after { background: #b7cf99; }
+[data-theme="dark"] .divider span { background: #121b19; color: #a9b8a5; }
+[data-theme="dark"] .chart-row progress { background: #30402e; }
+[data-theme="dark"] .chart-row progress::-webkit-progress-bar { background: #30402e; }
+[data-theme="dark"] .timeline li { border-left-color: #405039; }
+[data-theme="dark"] .timeline li:last-child { border-color: transparent; }
+[data-theme="dark"] dialog::backdrop { background: #050b09a8; }
+[data-theme="dark"] #toast { background: #c6ddae; color: #193123; }
+@media (max-width:680px) {
+  .theme-toggle { right: max(16px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom)); }
+  .auth-side { padding-bottom: 100px; }
+}
