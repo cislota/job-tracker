@@ -5,6 +5,7 @@ import { promisify } from 'node:util';
 import { mkdirSync, readFileSync } from 'node:fs';
 import { dirname, resolve, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createCareer } from './career.mjs';
 
 const scrypt = promisify(scryptCallback);
 const ROOT = dirname(fileURLToPath(import.meta.url));
@@ -150,6 +151,7 @@ export function createApp({dbPath = process.env.DB_PATH || join(ROOT,'data','tra
       if(index===0) writeEvent(userId,id,'note','Обсудить формат работы и задачи на первые три месяца. Подготовить демонстрацию проекта.');
     });
   }
+  const career=createCareer(db,{text,fail,choice,bodyOf,send,ownJob});
   const server = http.createServer(async(req,res)=>{
     res.setHeader('X-Content-Type-Options','nosniff');
     res.setHeader('Referrer-Policy','no-referrer');
@@ -195,8 +197,9 @@ export function createApp({dbPath = process.env.DB_PATH || join(ROOT,'data','tra
       }
       if(path.startsWith('/api/')) {
         const user=userFor(req), userId=user.id;
+        if(await career.handle(req,res,url,userId))return;
         if(path==='/api/me' && method==='GET') return send(res,{user:publicUser(user)});
-        if(path==='/api/state' && method==='GET') return send(res,{user:publicUser(user),jobs:stmt('SELECT * FROM jobs WHERE user_id=? ORDER BY updated_at DESC,rowid DESC').all(userId),tasks:stmt('SELECT * FROM tasks WHERE user_id=? ORDER BY due_date,due_time,created_at').all(userId),events:stmt('SELECT * FROM events WHERE user_id=? ORDER BY created_at DESC,rowid DESC').all(userId)});
+        if(path==='/api/state' && method==='GET') return send(res,{user:publicUser(user),...career.snapshot(userId),jobs:stmt('SELECT * FROM jobs WHERE user_id=? ORDER BY updated_at DESC,rowid DESC').all(userId),tasks:stmt('SELECT * FROM tasks WHERE user_id=? ORDER BY due_date,due_time,created_at').all(userId),events:stmt('SELECT * FROM events WHERE user_id=? ORDER BY created_at DESC,rowid DESC').all(userId)});
         if(path==='/api/jobs' && method==='POST') {
           const body=await bodyOf(req), id=transaction(()=>insertJob(userId,body)); return send(res,{id},201);
         }
@@ -257,12 +260,13 @@ export function createApp({dbPath = process.env.DB_PATH || join(ROOT,'data','tra
           }
           const strip=rows=>rows.map(({user_id,...row})=>row);
           res.setHeader('Content-Disposition','attachment; filename="job-tracker.json"');
-          return send(res,{schemaVersion:1,exportedAt:now(),jobs:strip(jobs),tasks:strip(stmt('SELECT * FROM tasks WHERE user_id=?').all(userId)),events:strip(stmt('SELECT * FROM events WHERE user_id=?').all(userId))});
+          const extra=career.snapshot(userId);
+          return send(res,{schemaVersion:2,exportedAt:now(),profile:strip([extra.profile])[0],resumes:strip(extra.resumes),projects:strip(extra.projects),letters:strip(extra.letters),jobs:strip(jobs),tasks:strip(stmt('SELECT * FROM tasks WHERE user_id=?').all(userId)),events:strip(stmt('SELECT * FROM events WHERE user_id=?').all(userId))});
         }
         fail(404,'Адрес API не найден.');
       }
       if(!['GET','HEAD'].includes(method)) fail(405,'Метод не поддерживается.');
-      const files={'/':'index.html','/app.js':'app.js','/style.css':'style.css','/favicon.svg':'favicon.svg'};
+      const files={'/':'index.html','/app.js':'app.js','/career.js':'career.js','/style.css':'style.css','/favicon.svg':'favicon.svg'};
       if(!files[path]) fail(404,'Страница не найдена.');
       const file=files[path], types={html:'text/html',js:'text/javascript',css:'text/css',svg:'image/svg+xml'};
       res.writeHead(200,{'Content-Type':`${types[file.split('.').pop()]}; charset=utf-8`});

@@ -83,7 +83,7 @@ test('экспорт полон, приватен, CSV защищает от ф�
   const {client}=await fixture(t),a=client();await register(a);
   const result=await a('/api/jobs',{method:'POST',body:{...job,company:'=HYPERLINK("https://example.com")',description:'<script>alert(1)</script>'}});
   await a(`/api/jobs/${result.data.id}/notes`,{method:'POST',body:{body:'Заметка для экспорта'}});
-  const json=(await a('/api/export')).data;assert.equal(json.schemaVersion,1);assert.equal(json.events.length,2);assert.equal(json.jobs[0].user_id,undefined);assert.equal(json.password_hash,undefined);
+  const json=(await a('/api/export')).data;assert.equal(json.schemaVersion,2);assert.equal(json.events.length,2);assert.equal(json.jobs[0].user_id,undefined);assert.equal(json.password_hash,undefined);
   const csv=await a('/api/export?format=csv');assert.match(csv.data,/'=HYPERLINK/);assert.match(csv.headers.get('content-disposition'),/attachment/);
 });
 

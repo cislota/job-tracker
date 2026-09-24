@@ -1,6 +1,6 @@
 FROM node:22-bookworm-slim
 WORKDIR /app
-COPY --chown=node:node package.json server.mjs ./
+COPY --chown=node:node package.json server.mjs career.mjs letter-generator.mjs ./
 COPY --chown=node:node public ./public
 RUN mkdir -p /app/data && chown node:node /app/data
 USER node

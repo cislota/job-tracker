@@ -8,6 +8,6 @@
   "scripts": {
     "start": "node --env-file-if-exists=.env server.mjs",
     "test": "node --test tests/*.test.mjs",
-    "check": "node --check server.mjs && node --check public/app.js"
+    "check": "node --check server.mjs && node --check career.mjs && node --check letter-generator.mjs && node --check public/app.js && node --check public/career.js"
   }
 }
