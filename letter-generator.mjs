@@ -67,6 +67,25 @@ export function generateLetter({job,profile={},resume=null,projects=[],options={
     paragraphs.push(`Из указанных в вакансии навыков у меня есть ${skillEvidence.join(', ')}.`);
     evidence.push({kind:'skills',label:'Совпавшие навыки',text:skillEvidence.join(', ')});
   }
+  if(resume?.content) {
+    const comparable=text=>normalize(text).replace(/[^\p{L}\p{N}]+/gu,' ').trim();
+    const usedFacts=[summary||'',...ranked.map(p=>contributionText(p.contribution,detailed))].map(comparable);
+    const resumeKeywords=[...new Set([...keywords,...aliases.flat().filter(term=>matches(vacancy,term)||matches(wishes,term))])];
+    const candidates=fragments(resume.content)
+      .filter(line=>line.length>=25 && !line.endsWith(':') && !/^(?:https?:\/\/|email\s*:|телефон\s*:)/i.test(line))
+      .map((line,index)=>({line,index,value:score(line,resumeKeywords)}))
+      .sort((a,b)=>b.value-a.value||a.index-b.index);
+    let count=0;
+    for(const candidate of candidates) {
+      const key=comparable(candidate.line);
+      if(usedFacts.some(used=>used && (used.includes(key)||key.includes(used))))continue;
+      const used=snippet(candidate.line,detailed?500:350);
+      paragraphs.push(`${used}.`);
+      evidence.push({kind:'resume',label:resume.name,text:used});
+      usedFacts.push(key);
+      if(++count>=(detailed?2:1))break;
+    }
+  }
   for(const project of ranked) {
     const contribution=contributionText(project.contribution,detailed);
     paragraphs.push(`Проект «${project.title}»: мой вклад — ${contribution}.`);
@@ -74,15 +93,6 @@ export function generateLetter({job,profile={},resume=null,projects=[],options={
     if(detailed) {
       if(project.features)paragraphs.push(`Реализованная функциональность проекта: ${snippet(project.features,500)}.`);
       if(project.results)paragraphs.push(`Результат проекта: ${snippet(project.results,400)}.`);
-    }
-  }
-  if(resume?.content && (detailed || !summary && !ranked.length)) {
-    const candidates=fragments(resume.content).map((line,index)=>({line,index,value:score(line,keywords)}))
-      .sort((a,b)=>b.value-a.value||a.index-b.index);
-    const fact=candidates.find(item=>item.value>0 && !summary?.includes(item.line)) || (!evidence.length ? candidates[0] : null);
-    if(fact) {
-      const used=snippet(fact.line,500);paragraphs.push(`${used}.`);
-      evidence.push({kind:'resume',label:resume.name,text:used});
     }
   }
   if(!evidence.length) {

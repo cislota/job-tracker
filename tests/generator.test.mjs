@@ -37,3 +37,25 @@ test('резюме только с текстом работает и без с�
   assert.doesNotMatch(result.body,/Из указанных в вакансии навыков/);
   assert.ok(result.warnings.some(w=>w.includes('совпадений')));
 });
+test('короткое письмо включает факт из резюме перед проектом, даже при заполненном кратком опыте',()=>{
+  const resume={name:'Разработчик',summary:'Разрабатываю веб-приложения.',content:'Опыт:\nРазрабатываю веб-приложения.\nГотовлю макеты пользовательских экранов.\nИнтегрирую REST API и проверяю обработку ошибок.'};
+  const result=generateLetter({job,profile,resume,projects:[tracker],options:{length:'short'}});
+  assert.match(result.body,/Интегрирую REST API и проверяю обработку ошибок/);
+  assert.ok(result.body.indexOf('Интегрирую REST API')<result.body.indexOf('Проект «'));
+  assert.equal(result.body.split('Разрабатываю веб-приложения.').length-1,1);
+  assert.doesNotMatch(result.body,/Готовлю макеты/);
+  assert.match(result.body,/Использовал Codex/);
+  assert.ok(result.evidence.some(e=>e.kind==='resume'&&e.text.includes('Интегрирую REST API')));
+});
+test('подробное письмо берёт два разных факта из резюме и пропускает дубликат вклада проекта',()=>{
+  const resume={name:'Разработчик',summary:'Создаю веб-приложения.',content:'Проектировал сценарии поиска работы.\nИнтегрирую REST API и проверяю обработку ошибок.\nИнтегрирую REST API и проверяю обработку ошибок!\nРаботаю с SQLite и проектирую структуру таблиц.'};
+  const result=generateLetter({job,profile,resume,projects:[tracker],options:{length:'detailed'}});
+  assert.equal(result.body.split('Интегрирую REST API').length-1,1);
+  assert.equal(result.body.split('Проектировал сценарии поиска работы').length-1,1);
+  assert.match(result.body,/Работаю с SQLite/);
+});
+test('резюме дополняет выбранный проект фактом без ключевых совпадений',()=>{
+  const result=generateLetter({job,profile,resume:{name:'Разработчик',summary:'Создаю приложения.',content:'Опыт:\nОбсуждаю требования с заказчиком и документирую решения.'},projects:[tracker],options:{length:'short'}});
+  assert.match(result.body,/Обсуждаю требования с заказчиком/);
+  assert.match(result.body,/Проект «Тестовый трекер»/);
+});
