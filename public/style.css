@@ -192,3 +192,13 @@ label{display:flex;flex-direction:column;gap:8px;font-size:12px;font-weight:500;
   .letter-settings { padding:12px; }
   .letter-character-count { width:100%; }
 }
+/* Keep today's panels aligned while their lists scroll independently. */
+.dashboard-grid>.panel{height:460px;display:flex;flex-direction:column;min-width:0;overflow:hidden}
+.dashboard-grid .section-heading,.dashboard-grid .panel-foot{flex-shrink:0}
+.dashboard-scroll{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable;scrollbar-width:thin;scrollbar-color:#8b9d80 transparent}
+.dashboard-scroll:focus-visible{outline:2px solid #8ab89b;outline-offset:-3px}
+.dashboard-scroll .upcoming-item>div,.upcoming-dialog-list .upcoming-item>div{min-width:0;overflow-wrap:anywhere}
+.upcoming-dialog-list .upcoming-item{margin:0;padding:18px 0}
+.upcoming-dialog-list .upcoming-item strong{font-size:14px}
+.upcoming-dialog-list .upcoming-item>div span{font-size:12px}
+@media(max-width:680px){.dashboard-grid>.panel{height:420px}.dashboard-grid .section-heading{flex-wrap:wrap;gap:10px}}
