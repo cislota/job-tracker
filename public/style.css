@@ -202,3 +202,6 @@ label{display:flex;flex-direction:column;gap:8px;font-size:12px;font-weight:500;
 .upcoming-dialog-list .upcoming-item strong{font-size:14px}
 .upcoming-dialog-list .upcoming-item>div span{font-size:12px}
 @media(max-width:680px){.dashboard-grid>.panel{height:420px}.dashboard-grid .section-heading{flex-wrap:wrap;gap:10px}}
+
+/* Skill lists wrap and grow to keep the entire value visible. */
+#profile-form textarea[data-auto-grow]{min-height:76px;max-height:none;overflow:hidden;resize:none;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}

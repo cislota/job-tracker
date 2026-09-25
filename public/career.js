@@ -4,6 +4,15 @@ export function createCareerUI({state,api,refresh,render,shell,esc,icon,fullDate
   const action=(name,label,id='',classes='button secondary')=>`<button type="button" class="${classes}" data-career="${name}" data-id="${id}">${label}</button>`;
   const formFooter=label=>`<div class="form-error" role="alert"></div><div class="dialog-footer"><button type="button" class="button secondary" data-action="close-dialog">Отмена</button><button class="button primary" type="submit">${label}</button></div>`;
 
+  function growSkillField(field) {
+    field.style.height='auto';
+    const style=getComputedStyle(field);
+    field.style.height=`${field.scrollHeight+parseFloat(style.borderTopWidth)+parseFloat(style.borderBottomWidth)}px`;
+  }
+  function growSkills(){document.querySelectorAll('#profile-form [data-auto-grow]').forEach(growSkillField);}
+  window.addEventListener('resize',growSkills);
+  document.fonts?.ready.then(growSkills);
+
   function profilePage() {
     const p=state.profile||{},resumes=state.resumes||[],projects=state.projects||[];
     const skills=[['languages','Языки программирования'],['frameworks','Фреймворки и библиотеки'],['databases','Базы данных'],['tools','Инструменты разработки'],['analysis','Системный анализ'],['ai_tools','ИИ-инструменты']];
@@ -12,9 +21,10 @@ export function createCareerUI({state,api,refresh,render,shell,esc,icon,fullDate
       ${field('full_name','Имя и фамилия',p.full_name)}${field('target_role','Желаемая должность',p.target_role)}
       <div class="full">${field('summary','Кратко о профессиональном опыте',p.summary,5000,4)}${field('contacts','Контактные данные для подписи',p.contacts,1000,2)}</div>
       ${field('github_url','Ссылка на GitHub',p.github_url,2000,0,false,'url')}${field('portfolio_url','Ссылка на портфолио',p.portfolio_url,2000,0,false,'url')}
-      </div><h3>Навыки</h3><p class="muted career-hint">Перечисляйте через запятую: это поможет найти совпадения с вакансией.</p><div class="form-grid">${skills.map(([key,label])=>field(key,label,p[key],2000)).join('')}</div><div class="form-error" role="alert"></div><button type="submit" class="button primary">Сохранить профиль</button></form></section>
+      </div><h3>Навыки</h3><p class="muted career-hint">Перечисляйте через запятую: это поможет найти совпадения с вакансией.</p><div class="form-grid">${skills.map(([key,label])=>field(key,label,p[key],2000,2).replace('<textarea ', '<textarea data-auto-grow ')).join('')}</div><div class="form-error" role="alert"></div><button type="submit" class="button primary">Сохранить профиль</button></form></section>
       <div><section class="panel detail-section"><div class="career-section-heading"><h2>Версии резюме <span class="count">${resumes.length}</span></h2>${action('add-resume',`${icon('plus')} Добавить`,'','text-button')}</div><p class="muted career-hint">Например, разработчик и системный аналитик. В первой версии резюме хранится как текст.</p>${resumes.length?resumes.map(r=>`<article class="career-card"><h3>${esc(r.name)}</h3><span class="muted">${esc(r.target_role)||'Должность не указана'}</span><p>${esc((r.summary||r.content).slice(0,180))}${(r.summary||r.content).length>180?'…':''}</p><div class="career-card-actions">${action('edit-resume','Изменить',r.id,'text-button')}${action('delete-resume','Удалить',r.id,'text-button danger')}</div></article>`).join(''):'<p class="career-empty">Добавьте первое резюме, чтобы выбирать его для письма.</p>'}</section>
       <section class="panel detail-section"><div class="career-section-heading"><h2>Мои проекты <span class="count">${projects.length}</span></h2>${action('add-project',`${icon('plus')} Добавить`,'','text-button')}</div><p class="muted career-hint">Опишите именно свой вклад. Если использовали AI-агентов, укажите, какие задачи выполняли с их помощью.</p>${projects.length?projects.map(p=>`<article class="career-card"><h3>${esc(p.title)}</h3><span class="career-technologies">${esc(p.technologies)}</span><p>${esc(p.description.slice(0,180))}${p.description.length>180?'…':''}</p><details><summary>Личный вклад</summary><p class="prose">${esc(p.contribution)}</p></details><div class="career-card-actions">${action('edit-project','Изменить',p.id,'text-button')}${action('delete-project','Удалить',p.id,'text-button danger')}</div></article>`).join(''):'<p class="career-empty">Пока нет проектов. Названия из примеров не добавляются автоматически.</p>'}</section></div></div>`,'Мой профиль','Опыт, резюме и проекты для персональных откликов.');
+    growSkills();
   }
 
   function resumeForm(id) {
@@ -70,6 +80,7 @@ export function createCareerUI({state,api,refresh,render,shell,esc,icon,fullDate
     document.querySelector('[data-career="confirm-generate"]').generationOptions=options;
   }
   document.addEventListener('input',event=>{
+    if(event.target.matches('#profile-form [data-auto-grow]'))growSkillField(event.target);
     const id=event.target.dataset.letterBody;
     if(id) {
       const d=draftFor(id);d.body=event.target.value;d.dirty=true;
